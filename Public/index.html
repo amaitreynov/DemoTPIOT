@@ -1,0 +1,36 @@
+
+<html>
+<head>
+  <title>Socket IO Demo</title>
+  <script src="http://code.jquery.com/jquery-1.5.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var sock = io();
+      sock.on('message', function (data) {
+        var obj = JSON.parse(data);
+        $('#result').text(obj.result);
+      });
+      sock.connect();
+      $("#translate").click(function() { 
+        sock.emit('message', $('#message').val());
+        //sock.send("Poke !"); 
+      });
+    });
+  </script>
+</head>
+<body>
+  <div>
+    <h2>Translator</h2>
+    <!--<label for="timestamp">Timestamp</label>
+    <div id="timestamp"></div>
+    <label for="clients">Clients</label>
+    <div id="clients"></div>-->
+    <label for="message">Message : </label>
+    <input id="message">
+    <p><button id="translate">Detect langage !</button></p>
+    <label for="result">Result : </label>
+    <div id="result"></div>
+  </div>
+</body>
+</html>
