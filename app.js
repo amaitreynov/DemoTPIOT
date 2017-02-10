@@ -9,7 +9,24 @@ var Message = require('azure-iot-device').Message;
 //  "HostName=<iothub_host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>"
 // var connectionString = 'HostName=agirtest4389e.azure-devices.net;DeviceId=Ubuntu01;SharedAccessKey=jJkGh1Jzd3eSMj/JqeURKw==';
 // var connectionString = 'HostName=HubDemo.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=PYTJXWo07Ih9140NA++Sh6YjDb+POJLgnXWoL/nl0U0=';
-var connectionString = 'HostName=HubDemo.azure-devices.net;DeviceId=custom_new_device_01;SharedAccessKey=dXtd8bUjJzJnXMoxRb3mcFKpu+pS4neoCoSiUtVHFig=';
+/**
+ * Antoine's hub
+ * @type {string}
+ * HostName=ynovIpiIot.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=NfD1qL4F+51zr8HUcTtqGku7gW8Dl8o8XF0myBw4fIk=
+ */
+
+/**
+ * Sylvain's device
+ * @type {string}
+ */
+// var connectionString = 'HostName=HubDemo.azure-devices.net;DeviceId=custom_new_device_01;SharedAccessKey=dXtd8bUjJzJnXMoxRb3mcFKpu+pS4neoCoSiUtVHFig=';
+
+/**
+ * Antoine's device
+ * HostName=ynovIpiIot.azure-devices.net;DeviceId=new_device_01;SharedAccessKey=DXSkfz78lGjADuuCJ6L2/h8p8rqeewz9/Hx/gKGi9bc=
+ */
+var connectionString = 'HostName=ynovIpiIot.azure-devices.net;DeviceId=new_device_01;SharedAccessKey=DXSkfz78lGjADuuCJ6L2/h8p8rqeewz9/Hx/gKGi9bc=';
+
 var deviceId = ConnectionString.parse(connectionString).DeviceId;
 
 // Create IoT Hub client
