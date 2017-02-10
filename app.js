@@ -91,7 +91,7 @@ io.on('connection', function (socket) {
                 } else {
                     console.log('Client connected');
                     var msg = new Message(data1);
-                    console.log('trying to send msg: '+JSON.stringify(msg));
+                    console.log('trying to send msg: ' + JSON.stringify(msg));
                     client.sendEvent(msg, function (err) {
                         if (err) {
                             console.log(err.toString());
@@ -106,12 +106,12 @@ io.on('connection', function (socket) {
     });
 });
 
-
-http.listen(1337, function (err) {
-    if(err)
-        console.log("Err while starting server:"+err);
+var port = process.env.port || 1337;
+http.listen(port, function (err) {
+    if (err)
+        console.log("Err while starting server:" + err);
     else
-        console.log("Server started and listening on port 3000");
+        console.log("Server started and listening on port " + port);
 });
 
 
