@@ -107,7 +107,7 @@ io.on('connection', function (socket) {
 });
 
 
-http.listen(3000, function (err) {
+http.listen(1337, function (err) {
     if(err)
         console.log("Err while starting server:"+err);
     else
