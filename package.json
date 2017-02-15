@@ -16,6 +16,7 @@
     "ejs": "~2.5.5",
     "express": "~4.14.1",
     "morgan": "~1.7.0",
+    "once": "^1.4.0",
     "request": "^2.79.0",
     "serve-favicon": "~2.3.2",
     "socket.io": "^1.7.2",
