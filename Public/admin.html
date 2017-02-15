@@ -1,0 +1,26 @@
+
+<html>
+<head>
+  <title>Demo Admin IOT</title>
+  <script src="http://code.jquery.com/jquery-1.5.min.js"></script>
+  <script type="text/javascript">
+  </script>
+</head>
+<body>
+  <div>
+    <h2>Admin 1</h2>
+    <!--<label for="timestamp">Timestamp</label>
+    <div id="timestamp"></div>
+    <label for="clients">Clients</label>
+    <div id="clients"></div>-->
+    <label for="message">IOT Device : </label>
+    <form>
+      {% for iotdevice in iotdevices %}
+      {% if loop.first %}<br>{% endif %}
+      <input type="radio" name="{{ iotdevice }}" value="{{ iotdevice }}">{{ iotdevice }}<br>
+      {% endfor %}
+      <input type="submit">
+    </form>
+  </div>
+</body>
+</html>
