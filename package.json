@@ -2,10 +2,11 @@
   "name": "ynoviotsylthoant",
   "version": "0.0.0",
   "private": true,
-    "scripts": {
+  "scripts": {
     "start": "nodemon app.js"
   },
   "dependencies": {
+    "azure-event-hubs": "0.0.6",
     "azure-iot-device": "^1.1.5",
     "azure-iot-device-amqp": "^1.1.5",
     "azure-iothub": "^1.1.6",

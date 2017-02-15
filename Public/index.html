@@ -6,34 +6,76 @@
   <script src="/socket.io/socket.io.js"></script>
   <script type="text/javascript">
     $(document).ready(function () {
+      //j'initialise le socket
       var sock = io();
+      //je reçois la data du socket
       sock.on('message', function (data) {
         var obj = JSON.parse(data);
-        $('#result').text(obj.result);
+        $('#dataSend').text(obj.result);
       });
       sock.connect();
+      //j'envoie au socket la dataz
       $("#translate").click(function() { 
         sock.emit('message', $('#message').val());
         //sock.send("Poke !"); 
       });
     });
   </script>
+    <style>
+  table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+  }
+
+  td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+  }
+
+  tr:nth-child(even) {
+      background-color: #dddddd;
+  }
+  </style>
 </head>
 <body>
   <div>
     <a target="_blank" href="/admin">Monitor devices</a>
     <h2>Translator</h2>
+    <label>Device Connected: 
+          {%if deviceConnected != null %}
+              {{deviceConnected}}
+          {%else%}
+              none
+          {%endif%}
+    </label>
+    <br>
+    <br>
     <!--<label for="timestamp">Timestamp</label>
     <div id="timestamp"></div>
     <label for="clients">Clients</label>
     <div id="clients"></div>-->
     <label for="message">Message : </label>
     <input id="message">
-    <p><button id="translate">Detect langage !</button></p>
-    <label for="result">Data send : </label></br>
-    <label for="result">data result : </label></br>
-    <label for="result">Command received : </label></br>
-    <div id="result"></div>
+    <br>
+    {%if deviceConnected != null %}
+    <br>
+    <button id="translate">Detect langage !</button>
+    {% endif %}
+    <br>
+    <br>
+
+     <table>
+      <tr>
+        <th>Data Send to IOTRUB</th>
+        <th>Command Received</th>
+      </tr>
+      <tr>
+        <td><p id="dataSend"></p></td>
+        <td></td>
+      </tr>
+    </table>
   </div>
 </body>
 </html>

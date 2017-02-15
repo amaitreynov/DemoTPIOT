@@ -2,7 +2,18 @@
 <head>
   <title>Demo Admin IOT</title>
   <script src="http://code.jquery.com/jquery-1.5.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
   <script type="text/javascript">
+    $(document).ready(function () {
+      //j'initialise le socket
+      var sock = io();
+      //je reçois la data du socket
+      sock.on('messageReceived', function (data) {
+            var obj = JSON.parse(data);
+            $('#dataReceived').text(obj.result);
+      });
+      sock.connect();
+    });
   </script>
   <style>
   table {
@@ -32,6 +43,7 @@
         <th>status</th>
         <th>lastActivityTime</th>
         <th>cloudToDeviceMessageCount</th>
+        <th>Selected Device</th>
         <th>Command</th>
       </tr>
       {% for iotdevice in devices %}
@@ -42,9 +54,26 @@
         <td>{{iotdevice.status}}</td>
         <td>{{iotdevice.lastActivityTime}}</td>
         <td>{{iotdevice.cloudToDeviceMessageCount}}</td>
+        {%if iotdevice.deviceId == deviceConnected %}
+        <td>Selected</td>
+        {% else %}
+        <td><a href="/selectDevice/{{iotdevice.deviceId}}">Select</a></td>
+        {% endif %}
         <td></td>
       </tr>
       {% endfor %}
+    </table>
+    <br>
+    <br>
+         <table>
+      <tr>
+        <th>Data received from device</th>
+        <th>Command Send</th>
+      </tr>
+      <tr>
+        <td><p id="dataReceived"></p></td>
+        <td></td>
+      </tr>
     </table>
 
 </body>
