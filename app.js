@@ -89,8 +89,11 @@ io.on('connection', function (socket) {
                 if (err) {
                     console.error('Could not connect: ' + err);
                 } else {
+
                     console.log('Client connected');
-                    var msg = new Message(data1);
+                    console.log('Data1: '+JSON.stringify(data1));
+                    var dataToSend = JSON.parse({deviceId: 'new_device_02', data: data1.detectedLanguages[0].name});
+                    var msg = new Message(dataToSend);
                     console.log('trying to send msg: ' + JSON.stringify(msg));
                     client.sendEvent(msg, function (err) {
                         if (err) {
