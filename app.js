@@ -25,7 +25,7 @@ var Message = require('azure-iot-device').Message;
  * Antoine's device
  * HostName=ynovIpiIot.azure-devices.net;DeviceId=new_device_01;SharedAccessKey=DXSkfz78lGjADuuCJ6L2/h8p8rqeewz9/Hx/gKGi9bc=
  */
-var connectionString = 'HostName=ynovIpiIot.azure-devices.net;DeviceId=new_device_01;SharedAccessKey=DXSkfz78lGjADuuCJ6L2/h8p8rqeewz9/Hx/gKGi9bc=';
+var connectionString = 'HostName=ynovIotHubTonio.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=tn+b+mToX2wTSZNXenQzG5seBnPadl7ABmJMVrcOd64=';
 
 var deviceId = ConnectionString.parse(connectionString).DeviceId;
 
