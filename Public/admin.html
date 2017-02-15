@@ -1,26 +1,51 @@
-
 <html>
 <head>
   <title>Demo Admin IOT</title>
   <script src="http://code.jquery.com/jquery-1.5.min.js"></script>
   <script type="text/javascript">
   </script>
+  <style>
+  table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+  }
+
+  td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+  }
+
+  tr:nth-child(even) {
+      background-color: #dddddd;
+  }
+  </style>
 </head>
+
 <body>
-  <div>
-    <h2>Admin 1</h2>
-    <!--<label for="timestamp">Timestamp</label>
-    <div id="timestamp"></div>
-    <label for="clients">Clients</label>
-    <div id="clients"></div>-->
-    <label for="message">IOT Device : </label>
-    <form>
-      {% for iotdevice in iotdevices %}
+    <h2>Monitor Devices</h2>
+    <table>
+      <tr>
+        <th>DeviceId</th>
+        <th>connectionState</th>
+        <th>status</th>
+        <th>lastActivityTime</th>
+        <th>cloudToDeviceMessageCount</th>
+        <th>Command</th>
+      </tr>
+      {% for iotdevice in devices %}
       {% if loop.first %}<br>{% endif %}
-      <input type="radio" name="{{ iotdevice }}" value="{{ iotdevice }}">{{ iotdevice }}<br>
+      <tr>
+        <td>{{iotdevice.deviceId}}</td>
+        <td>{{iotdevice.connectionState}}</td>
+        <td>{{iotdevice.status}}</td>
+        <td>{{iotdevice.lastActivityTime}}</td>
+        <td>{{iotdevice.cloudToDeviceMessageCount}}</td>
+        <td></td>
+      </tr>
       {% endfor %}
-      <input type="submit">
-    </form>
-  </div>
+    </table>
+
 </body>
 </html>

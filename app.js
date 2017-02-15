@@ -1,9 +1,27 @@
 'use strict';
 
+var express = require('express');
+var app = express();
+var swig = require('swig');
+
 var Protocol = require('azure-iot-device-amqp').Amqp;
 var Client = require('azure-iot-device').Client;
 var ConnectionString = require('azure-iot-device').ConnectionString;
 var Message = require('azure-iot-device').Message;
+var IotHub = require('azure-iothub');
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+var parser = require('body-parser');
+var http1 = require('request');
+
+var connectionString = 'HostName=ynovIotHubTonio.azure-devices.net;DeviceId=new-device_01;SharedAccessKey=iaINBHMPhghQzyCEn5+RauTbJniCDl5fp7qGsB+9NeU=';
+var connectionStringIotHub = 'HostName=ynovIotHubTonio.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=tn+b+mToX2wTSZNXenQzG5seBnPadl7ABmJMVrcOd64=';
+
+var registry = IotHub.Registry.fromConnectionString(connectionStringIotHub);
+var deviceId = ConnectionString.parse(connectionString).DeviceId;
+
+
+
 
 // String containing Hostname, Device Id & Device Key in the following formats:
 //  "HostName=<iothub_host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>"
@@ -25,28 +43,38 @@ var Message = require('azure-iot-device').Message;
  * Antoine's device
  * HostName=ynovIpiIot.azure-devices.net;DeviceId=new_device_01;SharedAccessKey=DXSkfz78lGjADuuCJ6L2/h8p8rqeewz9/Hx/gKGi9bc=
  */
-var connectionString = 'HostName=ynovIotHubTonio.azure-devices.net;DeviceId=new-device_01;SharedAccessKey=iaINBHMPhghQzyCEn5+RauTbJniCDl5fp7qGsB+9NeU=';
 
-var deviceId = ConnectionString.parse(connectionString).DeviceId;
 
 // Create IoT Hub client
 // var client = Client.fromConnectionString(connectionString, Protocol);
 
 
-var express = require('express');
-var app = express();
-var parser = require('body-parser');
-var http1 = require('request');
 
-app.use(express.static(__dirname + '/public'));
-app.use(express.static(__dirname + '/socket.io'));
 
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+//app.use(express.static(__dirname + '/public'));
+//app.use(express.static(__dirname + '/socket.io'));
 
 app.get('/', function (req, res) {
-    res.render('./public/index.html');
+    //res.send('Hello World!');
+    res.render('index');
 });
+
+app.get('/ping/:id', function (req, res, next) {
+    registry.list(function (err, devices) {
+        console.log('Device To Ping' +req.params.value1);
+        //console.log(devices);
+        res.render('admin', {devices: devices});
+    })
+});
+
+app.get('/admin', function (req, res, next) {
+    registry.list(function (err, devices) {
+        console.log(devices);
+        res.render('admin', {devices: devices});
+    })
+});
+
+
 
 io.on('connection', function (socket) {
     socket.on('message', function (data) {
@@ -114,6 +142,14 @@ io.on('connection', function (socket) {
         });
     });
 });
+
+// This is where all the magic happens!
+app.engine('html', swig.renderFile);
+
+app.set('view engine', 'html');
+app.set('views', __dirname + '/Public');
+app.set('view cache', false);
+swig.setDefaults({cache: false});
 
 var port = process.env.port || 1337;
 http.listen(port, function (err) {
