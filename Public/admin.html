@@ -16,12 +16,11 @@
       //j'initialise le socket
       var sock = io();
       //je reçois la data du socket
-      sock.on('messageReceived', function (data) {
+      sock.on('message', function (data) {
             var obj = JSON.parse(data);
             console.log(obj);
             $('#dataReceived').text(obj.result);
       });
-      //sock.connect();
     });
   </script>
   <style>

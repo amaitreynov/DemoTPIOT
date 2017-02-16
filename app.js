@@ -108,7 +108,7 @@ app.post('/admin/create', function (req, res, next) {
 io.on('connection', function (socket) {
     
     socket.on('message', function (data) {
-        console.log(data);
+        //console.log(data);
         const args = {
             url: "https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/languages?numberOfLanguagesToDetect=1",
             headers: {
@@ -132,7 +132,7 @@ io.on('connection', function (socket) {
             let data1 = body.documents[0];
             //console.log('Upload successful!  Server responded with:', data1);
 
-            socket.send(JSON.stringify({result: /*"OK, bien reçu, le message était dans la langue : " + */data1.detectedLanguages[0].name}));
+            socket.send(JSON.stringify({result: data1.detectedLanguages[0].name}));
 
             // use factory function from AMQP-specific package
             const clientFromConnectionString = require('azure-iot-device-amqp').clientFromConnectionString;
@@ -167,37 +167,40 @@ io.on('connection', function (socket) {
                         }
                     });
 
-                    var clientHub = EventHubClient.fromConnectionString(connectionStringIotHub);
-                    clientHub.open()
-                        .then(clientHub.getPartitionIds.bind(clientHub))
-                        .then(function (partitionIds) {
-                            return partitionIds.map(function (partitionId) {
-                                return clientHub.createReceiver('$Default', partitionId, { 'startAfterTime' : Date.now()}).then(function(receiver) {
-                                    //console.log('Created partition receiver: ' + partitionId)
-                                    receiver.on('errorReceived', function (err) {
-                                            //console.log('error from hub :'+err.message);
-                                    });
-                                    receiver.on('message', function (message) {
-                                        //console.log('messageTosendToMonitor');
-                                        socket.on('chat message', function(message){
-                                            io.emit('messageReceived', JSON.stringify({result: message.body}));
-                                        });
-                                        /*console.log('Message received from device: ');
-                                        console.log(JSON.stringify(message.body));
-                                        console.log('')*/
-                                    });
-                                });
-                            });
-                        })
-                        .catch(function (err) {
-                            console.log('error from hub :'+err.message);
-                        });
+                    createEventHub();
+
                 }
             };
             client.open(connectCallback);
         });
     });
 });
+
+var printError = function (err) {
+    console.log(err.message);
+};
+
+var printMessage = function (message) {
+    console.log('Message received: ');
+    console.log(JSON.stringify(message.body));
+    console.log('');
+};
+
+const createEventHub = function() {
+    var clientHub = EventHubClient.fromConnectionString(connectionStringIotHub);
+    clientHub.open()
+        .then(clientHub.getPartitionIds.bind(clientHub))
+        .then(function (partitionIds) {
+            return partitionIds.map(function (partitionId) {
+                return clientHub.createReceiver('$Default', partitionId, { 'startAfterTime' : Date.now()}).then(function(receiver) {
+                    console.log('Created partition receiver: ' + partitionId)
+                    receiver.on('errorReceived', printError);
+                    receiver.on('message', printMessage);
+                });
+            });
+        })
+        .catch(printError);
+};
 
 // This is where all the magic happens!
 app.engine('html', swig.renderFile);
