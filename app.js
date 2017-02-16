@@ -31,7 +31,7 @@ let connectionString= null;
 let deviceId= null;
 
 //IOT HUB
-let connectionStringIotHub = 'HostName=ynovIotHubTonio.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=tn+b+mToX2wTSZNXenQzG5seBnPadl7ABmJMVrcOd64=';
+let connectionStringIotHub = 'HostName=ynovIotHubTonio.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=+SofTOaoVgifTLusyIEZwS+YD+q8yVYiLZutJBu0y9Q=';
 let registry = IotHub.Registry.fromConnectionString(connectionStringIotHub);
 
 //app.use(express.static(__dirname + '/public'));
