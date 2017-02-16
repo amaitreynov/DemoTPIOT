@@ -16,6 +16,7 @@ let http1 = require('request');
 let IotHub = require('azure-iothub');
 let EventHubClient = require('azure-event-hubs').Client;
 let once = require('once');
+let config = require('./config/config.json');
 
 
 // This is where all the magic happens!
@@ -31,13 +32,22 @@ let connectionString = null;
 let deviceId = null;
 
 //IOT HUB
-let connectionStringIotHub = 'HostName=ynovIotHubTonio.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=+SofTOaoVgifTLusyIEZwS+YD+q8yVYiLZutJBu0y9Q=';
+let connectionStringIotHub = config.connectionStringIotHub;
 let registry = IotHub.Registry.fromConnectionString(connectionStringIotHub);
 
 //app.use(express.static(__dirname + '/public'));
 //app.use(express.static(__dirname + '/socket.io'));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+
+// This is where all the magic happens!
+app.engine('html', swig.renderFile);
+
+app.set('view engine', 'html');
+app.set('views', __dirname + '/Public');
+app.set('view cache', false);
+swig.setDefaults({cache: false});
 
 app.get('/', function (req, res) {
     res.render('index', {deviceConnected: deviceId});
@@ -49,12 +59,11 @@ app.get('/admin', function (req, res, next) {
     })
 });
 
-
 app.get('/selectDevice/:id', function (req, res, next) {
     console.log('Device To select: ' + req.params.id);
     registry.get(req.params.id, function (err, deviceInfo, res) {
         //console.log(deviceInfo.authentication.symmetricKey.primaryKey);
-        connectionString = 'HostName=ynovIotHubTonio.azure-devices.net;DeviceId=' + req.params.id + ';SharedAccessKey=' + deviceInfo.authentication.symmetricKey.primaryKey;
+        connectionString = 'HostName=' + config.iotHubUri + ';DeviceId=' + req.params.id + ';SharedAccessKey=' + deviceInfo.authentication.symmetricKey.primaryKey;
         deviceId = ConnectionString.parse(connectionString).DeviceId;
     });
 
@@ -65,12 +74,12 @@ app.get('/removeDevice/:id', function (req, res, next) {
     let error, message;
     console.log('Device To remove: ' + req.params.id);
     registry.delete(req.params.id, function (err, deviceInfo, res) {
-        if(!err) {
+        if (!err) {
             console.log(JSON.stringify(deviceInfo));
         }
         else {
             error = err;
-            console.log('error occured while removing device: '+ error);
+            console.log('error occured while removing device: ' + error);
         }
     });
 
@@ -135,12 +144,6 @@ app.get('/ping/:id', function (req, res, next) {
             res.redirect('/admin');
         }, 1000);
     }
-
-    // registry.list(function (err, devices) {
-    //     console.log('Device To Ping: ' +req.params.value1);
-    //     //console.log(devices);
-    //     res.render('admin', {devices: devices});
-    // })
 });
 
 /*app.get('/admin/create', function (req, res, next) {
@@ -277,16 +280,6 @@ io.on('connection', function (socket) {
         });
     });
 });
-
-
-// This is where all the magic happens!
-app.engine('html', swig.renderFile);
-
-app.set('view engine', 'html');
-app.set('views', __dirname + '/Public');
-app.set('view cache', false);
-swig.setDefaults({cache: false});
-
 
 const port = process.env.port || 1337;
 http.listen(port, function (err) {

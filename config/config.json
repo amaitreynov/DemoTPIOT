@@ -1,0 +1,4 @@
+{
+  "connectionStringIotHub": "HostName=ynovIotHubTonio.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=+SofTOaoVgifTLusyIEZwS+YD+q8yVYiLZutJBu0y9Q=",
+  "iotHubUri": "ynovIotHubTonio.azure-devices.net"
+}

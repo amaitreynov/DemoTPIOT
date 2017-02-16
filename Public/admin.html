@@ -1,104 +1,130 @@
 <html>
 <head>
-  <title>Demo Admin IOT</title>
-  <!-- JQUERY -->
-  <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
-  <!-- CSS -->
-  <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-  <!-- Latest compiled and minified JavaScript -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <title>Demo Admin IOT</title>
+    <!-- JQUERY -->
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+    <!-- CSS -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
 
-  <!-- SOCKET -->
-  <script src="/socket.io/socket.io.js"></script>
-  <script type="text/javascript">
-    $(document).ready(function () {
-      //j'initialise le socket
-      var sock = io();
-      //je reçois la data du socket
-      sock.on('message', function (data) {
-            var obj = JSON.parse(data);
-            console.log(obj);
-            //todo check the content of incoming data and display it accordingly in the corresponding part: data sent or recevied command
-            $('#sentData').text(obj.result);
-      });
-    });
-  </script>
-  <style>
-  table {
-      font-family: arial, sans-serif;
-      border-collapse: collapse;
-      width: 100%;
-  }
+    <!-- SOCKET -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //j'initialise le socket
+            var sock = io();
+            //je reçois la data du socket
+            sock.on('message', function (data) {
+                var obj = JSON.parse(data);
+                console.log(obj);
+                //todo check the content of incoming data and display it accordingly in the corresponding part: data sent or recevied command
+                $('#sentData').text(obj.result);
+            });
+        });
+    </script>
+    <style>
+        .container-fluid {
+            padding-top: 15px;
+        }
+        /*table {*/
+        /*font-family: arial, sans-serif;*/
+        /*border-collapse: collapse;*/
+        /*width: 100%;*/
+        /*height: 100%;*/
+        /*}*/
 
-  td, th {
-      border: 1px solid #dddddd;
-      text-align: left;
-      padding: 8px;
-  }
+        /*td, th {*/
+        /*border: 1px solid #dddddd;*/
+        /*text-align: left;*/
+        /*padding: 8px;*/
+        /*}*/
 
-  tr:nth-child(even) {
-      background-color: #dddddd;
-  }
-  </style>
+        /*tr:nth-child(even) {*/
+        /*background-color: #dddddd;*/
+        /*}*/
+    </style>
 </head>
 
 <body>
-    <h2>Monitor Devices</h2>
-    <table>
-      <tr>
-        <th>DeviceId</th>
-        <th>connectionState</th>
-        <th>status</th>
-        <th>lastActivityTime</th>
-        <th>cloudToDeviceMessageCount</th>
-        <th>Selected Device</th>
-        <th>Command</th>
-      </tr>
-      {% for iotdevice in devices %}
-      {% if loop.first %}<br>{% endif %}
-      <tr>
-        <td>{{iotdevice.deviceId}}</td>
-        <td>{{iotdevice.connectionState}}</td>
-        <td>{{iotdevice.status}}</td>
-        <td>{{iotdevice.lastActivityTime}}</td>
-        <td>{{iotdevice.cloudToDeviceMessageCount}}</td>
-        {%if iotdevice.deviceId == deviceConnected %}
-        <td>Selected</td>
-        {% else %}
-        <td><a href="/selectDevice/{{iotdevice.deviceId}}">Select</a></td>
-        {% endif %}
-        <td><a href="/ping/{{iotdevice.deviceId}}">Ping</a> | <a href="/removeDevice/{{iotdevice.deviceId}}">Remove device</a></td>
-      </tr>
-      {% endfor %}
-    </table>
-    <br>
-    <br>
-    <h2>Create Device</h2>
-    <form action="/admin/create" class="form-horizontal" method="post">
-      <div class="form-group">
-        <label for="deviceId" class="col-sm-2 control-label">New device Id :</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" id="deviceId" name="deviceId" placeholder="New device Id">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <a href="/" class="btn btn-default" role="button">Back to main page</a>
+            <h2>Monitor Devices</h2>
+            <table class="table table-bordered">
+                <tr>
+                    <th>DeviceId</th>
+                    <th>connectionState</th>
+                    <th>status</th>
+                    <th>lastActivityTime</th>
+                    <th>cloudToDeviceMessageCount</th>
+                    <th>Selected Device</th>
+                    <th>Command</th>
+                </tr>
+                {% for iotdevice in devices %}
+                {% if loop.first %}<br>{% endif %}
+                <tr>
+                    <td>{{iotdevice.deviceId}}</td>
+                    <td>{{iotdevice.connectionState}}</td>
+                    <td>{{iotdevice.status}}</td>
+                    <td>{{iotdevice.lastActivityTime}}</td>
+                    <td>{{iotdevice.cloudToDeviceMessageCount}}</td>
+                    {%if iotdevice.deviceId == deviceConnected %}
+                    <td>Selected</td>
+                    {% else %}
+                    <td><a href="/selectDevice/{{iotdevice.deviceId}}">Select</a></td>
+                    {% endif %}
+                    <td><a href="/ping/{{iotdevice.deviceId}}">Ping</a> | <a
+                            href="/removeDevice/{{iotdevice.deviceId}}">Remove
+                        device</a></td>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
-      </div>
-      <div class="col-sm-offset-2 col-sm-10">
-        <button type="submit" class="btn btn-default">Submit</button>
-      </div>
-    </form>
+    </div>
+    <br>
+    <br>
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Create Device</h2>
+            <form action="/admin/create" class="form-horizontal" method="post">
+                <div class="form-group">
+                    <label for="deviceId" class="col-sm-2 control-label">New device Id :</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="deviceId" name="deviceId"
+                               placeholder="New device Id">
+                    </div>
+                </div>
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <br>
     <br>
-    <h2>Data Transition</h2>
-    <table>
-      <tr>
-        <th>Data sent from device</th>
-        <th>Command Sent from Hub to device</th>
-      </tr>
-      <tr>
-        <td><p id="sentData"></p></td>
-        <td><p id="receivedCommand"></p></td>
-      </tr>
-    </table>
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Data Transition</h2>
+            <table>
+                <tr>
+                    <th>Data sent from device</th>
+                    <th>Command Sent from Hub to device</th>
+                </tr>
+                <tr>
+                    <td><p id="sentData"></p></td>
+                    <td><p id="receivedCommand"></p></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</div>
 </body>
 </html>
