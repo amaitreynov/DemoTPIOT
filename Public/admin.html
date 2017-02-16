@@ -68,7 +68,7 @@
         {% else %}
         <td><a href="/selectDevice/{{iotdevice.deviceId}}">Select</a></td>
         {% endif %}
-        <td><a href="/ping/{{iotdevice.deviceId}}">Ping</a></td>
+        <td><a href="/ping/{{iotdevice.deviceId}}">Ping</a> | <a href="/removeDevice/{{iotdevice.deviceId}}">Remove device</a></td>
       </tr>
       {% endfor %}
     </table>

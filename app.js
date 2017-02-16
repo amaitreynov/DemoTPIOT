@@ -27,8 +27,8 @@ app.set('view cache', false);
 swig.setDefaults({cache: false});
 
 //DEVICE INFO
-let connectionString= null;
-let deviceId= null;
+let connectionString = null;
+let deviceId = null;
 
 //IOT HUB
 let connectionStringIotHub = 'HostName=ynovIotHubTonio.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=+SofTOaoVgifTLusyIEZwS+YD+q8yVYiLZutJBu0y9Q=';
@@ -50,57 +50,91 @@ app.get('/admin', function (req, res, next) {
 });
 
 
-
 app.get('/selectDevice/:id', function (req, res, next) {
-        console.log('Device To select: ' +req.params.id);
-        registry.get(req.params.id, function(err, deviceInfo, res) {
-                //console.log(deviceInfo.authentication.symmetricKey.primaryKey);
-                connectionString = 'HostName=ynovIotHubTonio.azure-devices.net;DeviceId='+req.params.id+';SharedAccessKey='+deviceInfo.authentication.symmetricKey.primaryKey;
-                deviceId = ConnectionString.parse(connectionString).DeviceId;
-        });
+    console.log('Device To select: ' + req.params.id);
+    registry.get(req.params.id, function (err, deviceInfo, res) {
+        //console.log(deviceInfo.authentication.symmetricKey.primaryKey);
+        connectionString = 'HostName=ynovIotHubTonio.azure-devices.net;DeviceId=' + req.params.id + ';SharedAccessKey=' + deviceInfo.authentication.symmetricKey.primaryKey;
+        deviceId = ConnectionString.parse(connectionString).DeviceId;
+    });
 
-        res.redirect('/admin');
+    res.redirect('/admin');
 });
 
+app.get('/removeDevice/:id', function (req, res, next) {
+    let error, message;
+    console.log('Device To remove: ' + req.params.id);
+    registry.delete(req.params.id, function (err, deviceInfo, res) {
+        if(!err) {
+            console.log(JSON.stringify(deviceInfo));
+        }
+        else {
+            error = err;
+            console.log('error occured while removing device: '+ error);
+        }
+    });
+
+    if (!error) {
+        //if no error occured, redirecting to admin panel after 1s timeout so we have the time to get the created device
+        setTimeout(function () {
+            //finally render the admin page
+            res.redirect('/admin');
+        }, 1000);
+    }
+});
 
 app.get('/ping/:id', function (req, res, next) {
-		let Client = require('azure-iothub').Client;
-		let Message = require('azure-iot-common').Message;
-		const targetDevice = req.params.value1;
+    let error, message;
+    let Client = require('azure-iothub').Client;
+    let Message = require('azure-iot-common').Message;
+    const targetDevice = req.params.id;
 
-		let serviceClient = Client.fromConnectionString(connectionString);
+    let serviceClient = Client.fromConnectionString(connectionStringIotHub);
 
-		function printResultFor(op) {
-				return function printResult(err, res) {
-						if (err) console.log(op + ' error: ' + err.toString());
-						if (res) console.log(op + ' status: ' + res.constructor.name);
-				};
-		}
+    function printResultFor(op) {
+        return function printResult(err, res) {
+            if (err) {
+                error = err;
+                console.log(op + ' error: ' + err.toString());
+            }
+            if (res) {
+                console.log(op + ' status: ' + res.constructor.name);
+                message = op + ' status: ' + res.constructor.name;
+                // let sock = io();
+                // sock.emit('message', msg.getData().toString('utf-8'));
+            }
+        };
+    }
 
-		function receiveFeedback(err, receiver){
-				receiver.on('message', function (msg) {
-						console.log('Feedback message:');
-						console.log(msg.getData().toString('utf-8'));
-						let sock = io();
-						sock.emit('message', msg.getData().toString('utf-8'));
-						//finally render the admin page
-						// res.render('admin', {devices: devices});
-				});
-		}
+    function receiveFeedback(err, receiver) {
+        receiver.on('message', function (msg) {
+            console.log('Feedback message:');
+            console.log(msg.getData().toString('utf-8'));
+        });
+    }
 
-		serviceClient.open(function (err) {
-				if (err) {
-						console.error('Could not connect: ' + err.message);
-				} else {
-						console.log('Service client connected');
-						serviceClient.getFeedbackReceiver(receiveFeedback);
-						let message = new Message('Cloud to device message.');
-						message.ack = 'full';
-						message.messageId = "My Message ID";
-						console.log('Sending message: ' + message.getData());
-						serviceClient.send(targetDevice, message, printResultFor('send'));
-				}
-		});
+    serviceClient.open(function (err) {
+        if (err) {
+            console.error('Could not connect: ' + err.message);
+        } else {
+            console.log('Service client connected');
+            serviceClient.getFeedbackReceiver(receiveFeedback);
+            let message = new Message('Cloud to device message.');
+            message.ack = 'full';
+            message.messageId = "My Message ID";
+            console.log('Sending message: ' + message.getData());
+            serviceClient.send(targetDevice, message, printResultFor('send'));
+        }
+    });
+
+    if (!error) {
+        //if no error occured, redirecting to admin panel after 1s timeout so we have the time to get the created device
+        setTimeout(function () {
+            //finally render the admin page
+            // res.render('admin', {message: message});
+            res.redirect('/admin');
+        }, 1000);
+    }
 
     // registry.list(function (err, devices) {
     //     console.log('Device To Ping: ' +req.params.value1);
@@ -110,15 +144,15 @@ app.get('/ping/:id', function (req, res, next) {
 });
 
 /*app.get('/admin/create', function (req, res, next) {
-    res.render('createDevice');
-});*/
+ res.render('createDevice');
+ });*/
 
 app.post('/admin/create', function (req, res, next) {
     let error;
     const deviceId = req.body.deviceId;
     let device = new iotHub.Device(null);
     device.deviceId = deviceId;
-    registry.create(device, function(err, deviceInfo, res) {
+    registry.create(device, function (err, deviceInfo, res) {
         if (err) {
             registry.get(device.deviceId, printDeviceInfo(err, deviceInfo, res));
         }
@@ -131,7 +165,7 @@ app.post('/admin/create', function (req, res, next) {
     });
 
     function printDeviceInfo(err, deviceInfo, res) {
-        if(err) {
+        if (err) {
             error = err;
             res.render('error', {error: err});
         }
@@ -140,7 +174,8 @@ app.post('/admin/create', function (req, res, next) {
             console.log('Device key: ' + deviceInfo.authentication.symmetricKey.primaryKey);
         }
     }
-    if(!error) {
+
+    if (!error) {
         //if no error occured, redirecting to admin panel after 1s timeout so we have the time to get the created device
         setTimeout(function () {
             res.redirect('/admin');
@@ -149,9 +184,8 @@ app.post('/admin/create', function (req, res, next) {
 });
 
 
-
 io.on('connection', function (socket) {
-    
+
     socket.on('message', function (data) {
         //console.log(data);
         const args = {
@@ -217,25 +251,25 @@ io.on('connection', function (socket) {
                         .then(clientHub.getPartitionIds.bind(clientHub))
                         .then(function (partitionIds) {
                             return partitionIds.map(function (partitionId) {
-                                return clientHub.createReceiver('$Default', partitionId, { 'startAfterTime' : Date.now()}).then(function(receiver) {
+                                return clientHub.createReceiver('$Default', partitionId, {'startAfterTime': Date.now()}).then(function (receiver) {
                                     //console.log('Created partition receiver: ' + partitionId)
                                     receiver.on('errorReceived', function (err) {
-                                            //console.log('error from hub :'+err.message);
+                                        //console.log('error from hub :'+err.message);
                                     });
                                     receiver.on('message', function (message) {
                                         //console.log('messageTosendToMonitor');
-                                        socket.on('chat message', function(message){
+                                        socket.on('chat message', function (message) {
                                             io.emit('messageReceived', JSON.stringify({result: message.body}));
                                         });
                                         /*console.log('Message received from device: ');
-                                        console.log(JSON.stringify(message.body));
-                                        console.log('')*/
+                                         console.log(JSON.stringify(message.body));
+                                         console.log('')*/
                                     });
                                 });
                             });
                         })
                         .catch(function (err) {
-                            console.log('error from hub :'+err.message);
+                            console.log('error from hub :' + err.message);
                         });
                 }
             };
@@ -243,7 +277,6 @@ io.on('connection', function (socket) {
         });
     });
 });
-
 
 
 // This is where all the magic happens!
