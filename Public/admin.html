@@ -19,7 +19,8 @@
       sock.on('message', function (data) {
             var obj = JSON.parse(data);
             console.log(obj);
-            $('#dataReceived').text(obj.result);
+            //todo check the content of incoming data and display it accordingly in the corresponding part: data sent or recevied command
+            $('#sentData').text(obj.result);
       });
     });
   </script>
@@ -67,7 +68,7 @@
         {% else %}
         <td><a href="/selectDevice/{{iotdevice.deviceId}}">Select</a></td>
         {% endif %}
-        <td></td>
+        <td><a href="/ping/{{iotdevice.deviceId}}">Ping</a></td>
       </tr>
       {% endfor %}
     </table>
@@ -88,17 +89,16 @@
 
     <br>
     <br>
-    <h2>Data Received</h2>
+    <h2>Data Transition</h2>
     <table>
       <tr>
-        <th>Data received from device</th>
-        <th>Command Send</th>
+        <th>Data sent from device</th>
+        <th>Command Sent from Hub to device</th>
       </tr>
       <tr>
-        <td><p id="dataReceived"></p></td>
-        <td></td>
+        <td><p id="sentData"></p></td>
+        <td><p id="receivedCommand"></p></td>
       </tr>
     </table>
-
 </body>
 </html>

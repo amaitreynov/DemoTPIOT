@@ -21,7 +21,7 @@
             $('#dataSend').text(obj.result);
           });
           sock.connect();
-          //j'envoie au socket la dataz
+          //j'envoie au socket la data
           $("#translate").click(function() {
             sock.emit('message', $('#message').val());
           });

@@ -15,7 +15,16 @@ let bodyParser = require('body-parser');
 let http1 = require('request');
 let IotHub = require('azure-iothub');
 let EventHubClient = require('azure-event-hubs').Client;
-var once = require('once');
+let once = require('once');
+
+
+// This is where all the magic happens!
+app.engine('html', swig.renderFile);
+
+app.set('view engine', 'html');
+app.set('views', __dirname + '/Public');
+app.set('view cache', false);
+swig.setDefaults({cache: false});
 
 //DEVICE INFO
 let connectionString= null;
@@ -31,7 +40,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.get('/', function (req, res) {
-    //res.send('Hello World!');
     res.render('index', {deviceConnected: deviceId});
 });
 
@@ -52,16 +60,53 @@ app.get('/selectDevice/:id', function (req, res, next) {
         });
 
         res.redirect('/admin');
-
 });
 
 
 app.get('/ping/:id', function (req, res, next) {
-    registry.list(function (err, devices) {
-        console.log('Device To Ping: ' +req.params.value1);
-        //console.log(devices);
-        res.render('admin', {devices: devices});
-    })
+		let Client = require('azure-iothub').Client;
+		let Message = require('azure-iot-common').Message;
+		const targetDevice = req.params.value1;
+
+		let serviceClient = Client.fromConnectionString(connectionString);
+
+		function printResultFor(op) {
+				return function printResult(err, res) {
+						if (err) console.log(op + ' error: ' + err.toString());
+						if (res) console.log(op + ' status: ' + res.constructor.name);
+				};
+		}
+
+		function receiveFeedback(err, receiver){
+				receiver.on('message', function (msg) {
+						console.log('Feedback message:');
+						console.log(msg.getData().toString('utf-8'));
+						let sock = io();
+						sock.emit('message', msg.getData().toString('utf-8'));
+						//finally render the admin page
+						// res.render('admin', {devices: devices});
+				});
+		}
+
+		serviceClient.open(function (err) {
+				if (err) {
+						console.error('Could not connect: ' + err.message);
+				} else {
+						console.log('Service client connected');
+						serviceClient.getFeedbackReceiver(receiveFeedback);
+						let message = new Message('Cloud to device message.');
+						message.ack = 'full';
+						message.messageId = "My Message ID";
+						console.log('Sending message: ' + message.getData());
+						serviceClient.send(targetDevice, message, printResultFor('send'));
+				}
+		});
+
+    // registry.list(function (err, devices) {
+    //     console.log('Device To Ping: ' +req.params.value1);
+    //     //console.log(devices);
+    //     res.render('admin', {devices: devices});
+    // })
 });
 
 /*app.get('/admin/create', function (req, res, next) {
@@ -167,8 +212,31 @@ io.on('connection', function (socket) {
                         }
                     });
 
-                    createEventHub();
-
+                    let clientHub = EventHubClient.fromConnectionString(connectionStringIotHub);
+                    clientHub.open()
+                        .then(clientHub.getPartitionIds.bind(clientHub))
+                        .then(function (partitionIds) {
+                            return partitionIds.map(function (partitionId) {
+                                return clientHub.createReceiver('$Default', partitionId, { 'startAfterTime' : Date.now()}).then(function(receiver) {
+                                    //console.log('Created partition receiver: ' + partitionId)
+                                    receiver.on('errorReceived', function (err) {
+                                            //console.log('error from hub :'+err.message);
+                                    });
+                                    receiver.on('message', function (message) {
+                                        //console.log('messageTosendToMonitor');
+                                        socket.on('chat message', function(message){
+                                            io.emit('messageReceived', JSON.stringify({result: message.body}));
+                                        });
+                                        /*console.log('Message received from device: ');
+                                        console.log(JSON.stringify(message.body));
+                                        console.log('')*/
+                                    });
+                                });
+                            });
+                        })
+                        .catch(function (err) {
+                            console.log('error from hub :'+err.message);
+                        });
                 }
             };
             client.open(connectCallback);
@@ -176,31 +244,7 @@ io.on('connection', function (socket) {
     });
 });
 
-var printError = function (err) {
-    console.log(err.message);
-};
 
-var printMessage = function (message) {
-    console.log('Message received: ');
-    console.log(JSON.stringify(message.body));
-    console.log('');
-};
-
-const createEventHub = function() {
-    var clientHub = EventHubClient.fromConnectionString(connectionStringIotHub);
-    clientHub.open()
-        .then(clientHub.getPartitionIds.bind(clientHub))
-        .then(function (partitionIds) {
-            return partitionIds.map(function (partitionId) {
-                return clientHub.createReceiver('$Default', partitionId, { 'startAfterTime' : Date.now()}).then(function(receiver) {
-                    console.log('Created partition receiver: ' + partitionId)
-                    receiver.on('errorReceived', printError);
-                    receiver.on('message', printMessage);
-                });
-            });
-        })
-        .catch(printError);
-};
 
 // This is where all the magic happens!
 app.engine('html', swig.renderFile);
@@ -210,8 +254,8 @@ app.set('views', __dirname + '/Public');
 app.set('view cache', false);
 swig.setDefaults({cache: false});
 
-var port = process.env.port || 1337;
-//const port = process.env.port || 1337;
+
+const port = process.env.port || 1337;
 http.listen(port, function (err) {
     if (err)
         console.log("Err while starting server:" + err);
