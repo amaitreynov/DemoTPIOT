@@ -1,5 +1,5 @@
 {
   "connectionStringIotHub": "<your connection string here>",
   "iotHubUri": "<your iot hub uri string here>",
-  "cognitiveApiKey": ""
+  "cognitiveApiKey": "<your microsoft cognitive services api key here>"
 }
