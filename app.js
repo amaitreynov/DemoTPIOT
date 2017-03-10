@@ -196,7 +196,7 @@ io.on('connection', function (socket) {
             headers: {
                 "Content-Type": "application/json",
                 "Host": "westus.api.cognitive.microsoft.com",
-                "Ocp-Apim-Subscription-Key": "dc6de77bf54a4569bad188e244567133"
+                "Ocp-Apim-Subscription-Key": config.cognitiveApiKey
             },
             json: {
                 documents: [
